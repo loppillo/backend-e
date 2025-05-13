@@ -1,26 +1,45 @@
 import { Injectable } from '@nestjs/common';
 import { CreateAsistenciaDto } from './dto/create-asistencia.dto';
 import { UpdateAsistenciaDto } from './dto/update-asistencia.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Asistencia } from './entities/asistencia.entity';
+
+
 
 @Injectable()
 export class AsistenciaService {
-  create(createAsistenciaDto: CreateAsistenciaDto) {
-    return 'This action adds a new asistencia';
+  constructor(
+    @InjectRepository(Asistencia)
+    private readonly asistenciaRepository: Repository<Asistencia>,
+  ) {}
+
+  findAll(): Promise<Asistencia[]> {
+    return this.asistenciaRepository.find({ relations: ['usuarios'] });
   }
 
-  findAll() {
-    return `This action returns all asistencia`;
+  findOne(id: number): Promise<Asistencia> {
+    return this.asistenciaRepository.findOne({
+      where: { id },
+      relations: ['usuarios'],
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} asistencia`;
+  create(data: Partial<Asistencia>): Promise<Asistencia> {
+    const asistencia = this.asistenciaRepository.create(data);
+    return this.asistenciaRepository.save(asistencia);
   }
 
-  update(id: number, updateAsistenciaDto: UpdateAsistenciaDto) {
-    return `This action updates a #${id} asistencia`;
+  async update(id: number, data: Partial<Asistencia>): Promise<Asistencia> {
+    await this.asistenciaRepository.update(id, data);
+    return this.findOne(id);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} asistencia`;
+  async delete(id: number): Promise<void> {
+    await this.asistenciaRepository.delete(id);
   }
+
+
 }
+
+

@@ -6,8 +6,9 @@ import { Asignatura } from './entities/asignatura.entity';
 import { Inscripcion } from 'src/inscripcion/entities/inscripcion.entity';
 
 @Module({
-  
-  controllers: [AsignaturaController],
+  imports: [TypeOrmModule.forFeature([Asignatura])], // <== IMPORTANTE
   providers: [AsignaturaService],
+  controllers: [AsignaturaController],
+
 })
 export class AsignaturaModule {}

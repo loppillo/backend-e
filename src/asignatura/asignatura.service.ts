@@ -1,26 +1,36 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { CreateAsignaturaDto } from './dto/create-asignatura.dto';
 import { UpdateAsignaturaDto } from './dto/update-asignatura.dto';
+import { Asignatura } from './entities/asignatura.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class AsignaturaService {
-  create(createAsignaturaDto: CreateAsignaturaDto) {
-    return 'This action adds a new asignatura';
+constructor(
+    @InjectRepository(Asignatura)
+    private asignaturaRepo: Repository<Asignatura>,
+  ) {}
+
+  async findAll(): Promise<Asignatura[]> {
+    return this.asignaturaRepo.find({ relations: ['inscripcion'] });
   }
 
-  findAll() {
-    return `This action returns all asignatura`;
+  async findOne(id: number): Promise<Asignatura> {
+    return this.asignaturaRepo.findOne({ where: { id }, relations: ['inscripcion'] });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} asignatura`;
+  async create(data: Partial<Asignatura>): Promise<Asignatura> {
+    const nuevaAsignatura = this.asignaturaRepo.create(data);
+    return this.asignaturaRepo.save(nuevaAsignatura);
   }
 
-  update(id: number, updateAsignaturaDto: UpdateAsignaturaDto) {
-    return `This action updates a #${id} asignatura`;
+  async update(id: number, data: Partial<Asignatura>): Promise<Asignatura> {
+    await this.asignaturaRepo.update(id, data);
+    return this.findOne(id);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} asignatura`;
+  async delete(id: number): Promise<void> {
+    await this.asignaturaRepo.delete(id);
   }
 }

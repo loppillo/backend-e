@@ -1,26 +1,37 @@
 import { Injectable } from '@nestjs/common';
-import { CreateInscripcionDto } from './dto/create-inscripcion.dto';
-import { UpdateInscripcionDto } from './dto/update-inscripcion.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Inscripcion } from './entities/inscripcion.entity';
 
 @Injectable()
 export class InscripcionService {
-  create(createInscripcionDto: CreateInscripcionDto) {
-    return 'This action adds a new inscripcion';
+  constructor(
+    @InjectRepository(Inscripcion)
+    private readonly inscripcionRepository: Repository<Inscripcion>,
+  ) {}
+
+  findAll(): Promise<Inscripcion[]> {
+    return this.inscripcionRepository.find({ relations: ['asignatura', 'usuarios'] });
   }
 
-  findAll() {
-    return `This action returns all inscripcion`;
+  findOne(id: number): Promise<Inscripcion> {
+    return this.inscripcionRepository.find({
+      where: { id },
+      relations: ['asignatura', 'usuarios'],
+    }).then(result => result[0]);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} inscripcion`;
+  create(data: Partial<Inscripcion>): Promise<Inscripcion> {
+    const inscripcion = this.inscripcionRepository.create(data);
+    return this.inscripcionRepository.save(inscripcion);
   }
 
-  update(id: number, updateInscripcionDto: UpdateInscripcionDto) {
-    return `This action updates a #${id} inscripcion`;
+  async update(id: number, data: Partial<Inscripcion>): Promise<Inscripcion> {
+    await this.inscripcionRepository.update(id, data);
+    return this.findOne(id);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} inscripcion`;
+  async delete(id: number): Promise<void> {
+    await this.inscripcionRepository.delete(id);
   }
 }

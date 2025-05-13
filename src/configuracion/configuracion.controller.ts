@@ -1,34 +1,33 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
 import { ConfiguracionService } from './configuracion.service';
-import { CreateConfiguracionDto } from './dto/create-configuracion.dto';
-import { UpdateConfiguracionDto } from './dto/update-configuracion.dto';
+import { Configuracion } from './entities/configuracion.entity';
 
 @Controller('configuracion')
 export class ConfiguracionController {
   constructor(private readonly configuracionService: ConfiguracionService) {}
 
-  @Post()
-  create(@Body() createConfiguracionDto: CreateConfiguracionDto) {
-    return this.configuracionService.create(createConfiguracionDto);
-  }
-
   @Get()
-  findAll() {
+  findAll(): Promise<Configuracion[]> {
     return this.configuracionService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.configuracionService.findOne(+id);
+  findOne(@Param('id') id: number): Promise<Configuracion> {
+    return this.configuracionService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateConfiguracionDto: UpdateConfiguracionDto) {
-    return this.configuracionService.update(+id, updateConfiguracionDto);
+  @Post()
+  create(@Body() data: Partial<Configuracion>): Promise<Configuracion> {
+    return this.configuracionService.create(data);
+  }
+
+  @Put(':id')
+  update(@Param('id') id: number, @Body() data: Partial<Configuracion>): Promise<Configuracion> {
+    return this.configuracionService.update(id, data);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.configuracionService.remove(+id);
+  delete(@Param('id') id: number): Promise<void> {
+    return this.configuracionService.delete(id);
   }
 }
