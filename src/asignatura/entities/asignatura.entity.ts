@@ -1,27 +1,45 @@
-import { Inscripcion } from "src/inscripcion/entities/inscripcion.entity";
-import { Column, Entity, In, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Configuracion } from 'src/configuracion/entities/configuracion.entity';
+import { Inscripcion } from 'src/inscripcion/entities/inscripcion.entity';
+import { UsuarioAsignatura } from 'src/usuario-asignatura/entities/usuario-asignatura.entity';
+import { Usuario } from 'src/usuario/entities/usuario.entity';
 
-@Entity('asignatura')
+import {
+  Entity, PrimaryGeneratedColumn, Column, ManyToMany, OneToMany,
+  ManyToOne,
+  JoinColumn
+} from 'typeorm';
+
+
+@Entity()
 export class Asignatura {
-        @PrimaryGeneratedColumn()
-         id: number;
-    
-        @Column()
-        nombre: string;
-      
-        @Column()
-        descripcion: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-        @Column()
-        fecha_1:string;
+  @Column()
+  nombre: string;
 
-        @Column()
-        fecha_2:string;
+  @Column({ nullable: true })
+  descripcion: string;
 
-        @Column()
-        cantidad_instancia:number;
-        
-        @ManyToOne(() => Inscripcion)
-        inscripcion:Inscripcion;
+  @Column({ nullable: true })
+  fecha_1: string;
 
-    }
+  @Column({ nullable: true })
+  fecha_2: string;
+
+  @Column({ type: 'int', default: 0 })
+  cantidad_instancia: number;
+
+
+  @OneToMany(() => Inscripcion, inscripcion => inscripcion.asignatura)
+  inscripciones: Inscripcion[];
+
+   @OneToMany(() => Configuracion, conf => conf.asignatura)
+   configuracion: Configuracion[];
+
+ 
+
+   // Relación con tabla intermedia
+  @OneToMany(() => UsuarioAsignatura, ua => ua.asignatura)
+  usuarios_asignados: UsuarioAsignatura[];
+}

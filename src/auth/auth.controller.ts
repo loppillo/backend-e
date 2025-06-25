@@ -5,6 +5,7 @@ import { AuthService } from './auth.service';
 import { Auth } from './entities/auth.entity';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { TipoUsuario } from 'src/tipo_usuario/entities/tipo_usuario.entity';
 
 
 interface RequestWithUser extends Request {
@@ -31,7 +32,7 @@ export class AuthController {
     @Body()
     loginDto: LoginDto,
   ) {
-    return this.authService.login(loginDto);
+    return this.authService.login(loginDto.email, loginDto.password);
   }
 
 

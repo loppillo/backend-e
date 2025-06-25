@@ -1,1 +1,5 @@
-export class CreateConfiguracionDto {}
+export class CreateConfiguracionDto {
+  clave: string;
+  valor: string;
+  descripcion: string;
+}

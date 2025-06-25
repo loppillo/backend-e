@@ -1,16 +1,15 @@
-import { Usuario } from "src/usuario/entities/usuario.entity";
-import { Column, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Entity } from "typeorm/decorator/entity/Entity";
+import { Usuario } from 'src/usuario/entities/usuario.entity';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 
-@Entity('tipo_usuario')
+
+@Entity()
 export class TipoUsuario {
-     @PrimaryGeneratedColumn()
-     id: number;
-     
-     @Column()
-     tipo: string; 
+  @PrimaryGeneratedColumn()
+  id: number;
 
-     @OneToMany(()=>Usuario,(usuario)=>usuario.tipo_usuario)
-     usuarios:Usuario[];
+  @Column()
+  tipo: string;
 
+  @OneToMany(() => Usuario, usuario => usuario.tipoUsuario)
+  usuarios: Usuario[];
 }

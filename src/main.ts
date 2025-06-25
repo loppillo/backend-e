@@ -18,6 +18,7 @@ async function bootstrap() {
     })
   );
   app.use('/uploads', express.static(join(__dirname, '..', 'uploads')));
+  app.use('/templates', express.static(join(__dirname, '..', 'templates')));
   await app.listen(3000);
 }
 bootstrap();

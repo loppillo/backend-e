@@ -10,6 +10,17 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TipoUsuarioModule } from './tipo_usuario/tipo_usuario.module';
 import { ResponsableAlumnoModule } from './responsable_alumno/responsable_alumno.module';
 import { AsistenciaModule } from './asistencia/asistencia.module';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { MailModule } from './mail/mail.module';
+
+import { AuthModule } from './auth/auth.module';
+import { UsuarioAsignaturaModule } from './usuario-asignatura/usuario-asignatura.module';
+
+
+
+
+
 
 @Module({
   imports: [ TypeOrmModule.forRoot({
@@ -21,7 +32,9 @@ import { AsistenciaModule } from './asistencia/asistencia.module';
     database: 'colegio',
     entities: [__dirname + '/**/*.entity{.ts,.js}'],
     synchronize: true,
-  }),UsuarioModule,AsignaturaModule, InscripcionModule, ConfiguracionModule, TipoUsuarioModule, ResponsableAlumnoModule, AsistenciaModule],
+  }),UsuarioModule,AsignaturaModule, InscripcionModule, ConfiguracionModule, TipoUsuarioModule, ResponsableAlumnoModule, AsistenciaModule, MailModule,AuthModule, UsuarioAsignaturaModule
+
+],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -1,36 +1,51 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { In, Repository } from 'typeorm';
+import { Asignatura } from './entities/asignatura.entity';
 import { CreateAsignaturaDto } from './dto/create-asignatura.dto';
 import { UpdateAsignaturaDto } from './dto/update-asignatura.dto';
-import { Asignatura } from './entities/asignatura.entity';
-import { Repository } from 'typeorm';
 
 @Injectable()
 export class AsignaturaService {
-constructor(
+  constructor(
     @InjectRepository(Asignatura)
-    private asignaturaRepo: Repository<Asignatura>,
+    private readonly asignaturaRepo: Repository<Asignatura>,
   ) {}
 
-  async findAll(): Promise<Asignatura[]> {
-    return this.asignaturaRepo.find({ relations: ['inscripcion'] });
+  async create(dto: CreateAsignaturaDto): Promise<Asignatura> {
+    const asignatura = this.asignaturaRepo.create(dto);
+    return this.asignaturaRepo.save(asignatura);
+  }
+
+  findAll(): Promise<Asignatura[]> {
+    return this.asignaturaRepo.find({
+      relations: [ 'inscripciones'],
+    });
   }
 
   async findOne(id: number): Promise<Asignatura> {
-    return this.asignaturaRepo.findOne({ where: { id }, relations: ['inscripcion'] });
+    const asignatura = await this.asignaturaRepo.findOne({
+      where: { id },
+      relations: [ 'inscripciones'],
+    });
+    if (!asignatura) {
+      throw new NotFoundException(`Asignatura con ID ${id} no encontrada`);
+    }
+    return asignatura;
   }
 
-  async create(data: Partial<Asignatura>): Promise<Asignatura> {
-    const nuevaAsignatura = this.asignaturaRepo.create(data);
-    return this.asignaturaRepo.save(nuevaAsignatura);
+  async update(id: number, dto: UpdateAsignaturaDto): Promise<Asignatura> {
+    const asignatura = await this.findOne(id);
+    Object.assign(asignatura, dto);
+    return this.asignaturaRepo.save(asignatura);
   }
 
-  async update(id: number, data: Partial<Asignatura>): Promise<Asignatura> {
-    await this.asignaturaRepo.update(id, data);
-    return this.findOne(id);
+  async remove(id: number): Promise<void> {
+    const asignatura = await this.findOne(id);
+    await this.asignaturaRepo.remove(asignatura);
   }
 
-  async delete(id: number): Promise<void> {
-    await this.asignaturaRepo.delete(id);
+   async findByIds(ids: number[]): Promise<Asignatura[]> {
+    return this.asignaturaRepo.findBy({ id: In(ids) });
   }
 }

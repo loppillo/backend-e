@@ -4,17 +4,16 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from "ty
 @Entity('responsable')
 export class ResponsableAlumno {
 
-    @PrimaryGeneratedColumn()
-    id: number;
-    
-    @Column()
-    nombre: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column()
-    correo: string;
+  @Column()
+  nombre: string;
 
-    @OneToMany(()=>Usuario,(usuario)=>usuario.responsable_alumno)
-    usuarios:Usuario[];
-   
+  @Column()
+  correo: string;
+
+  @OneToMany(() => Usuario, usuario => usuario.responsableAlumno)
+  usuarios: Usuario[];
 
 }

@@ -1,24 +1,25 @@
+import { Asignatura } from "src/asignatura/entities/asignatura.entity";
 import { Usuario } from "src/usuario/entities/usuario.entity";
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('configuracion')
 export class Configuracion {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column('text')
-    clave: string;
+  @Column()
+  clave: string;
 
-    @Column()
-    valor: number;
+  @Column()
+  valor: string;
 
-    @Column('text')
-    descripcion: string;
+  @Column({ type: 'text', nullable: true })
+  descripcion: string;
 
+ @ManyToOne(() => Asignatura, asignatura => asignatura.configuracion)
+@JoinColumn({ name: 'asignaturaId' })
+asignatura: Asignatura;
 
-    @OneToMany(()=>Usuario,(usuario)=>usuario.configuracion)
-    usuarios:Usuario[];
-
-
-
+@Column()
+asignaturaId: number;
 }

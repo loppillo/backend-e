@@ -1,30 +1,32 @@
+import { Asignatura } from 'src/asignatura/entities/asignatura.entity';
+import { Usuario } from 'src/usuario/entities/usuario.entity';
+import {
+  Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn,
+  JoinColumn
+} from 'typeorm';
 
-import { Asignatura } from "src/asignatura/entities/asignatura.entity";
-import { Usuario } from "src/usuario/entities/usuario.entity";
 
-import { Admin, Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-
-@Entity('inscripcion')
+@Entity()
 export class Inscripcion {
+  @PrimaryGeneratedColumn()
+  id: number;
+  @Column({ type: 'date' }) // <-- NO 'datetime'
+  fecha: string;
 
-    @PrimaryGeneratedColumn()
-    id: number;
-    
-    @Column()
-    fecha: Date;
+  @Column({ type: 'tinyint', default: 1 })
+  inscrito: boolean;
 
-    @Column()
-    inscrito:boolean;
+  @Column({ type: 'int', nullable: true })
+  cantidad_limite: number;
 
-    @Column()
-    cantidad_limite:number;
+  @ManyToOne(() => Usuario, usuario => usuario.inscripciones)
+  usuario: Usuario;
 
-    @OneToMany(()=>Asignatura,(asignatura)=>asignatura.inscripcion)
-    asignatura:Asignatura[];
 
-    @OneToMany(()=>Usuario,(user)=>user)
-    usuarios:Usuario[];
-
+  @ManyToOne(() => Asignatura, { eager: true })
+  @JoinColumn({ name: 'asignaturaId' })
+  asignatura: Asignatura;
 
 
 }
+

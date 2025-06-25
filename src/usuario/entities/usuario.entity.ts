@@ -1,41 +1,52 @@
-import { Asistencia } from "src/asistencia/entities/asistencia.entity";
-import { Configuracion } from "src/configuracion/entities/configuracion.entity";
-import { Inscripcion } from "src/inscripcion/entities/inscripcion.entity";
-import { ResponsableAlumno } from "src/responsable_alumno/entities/responsable_alumno.entity";
-import { TipoUsuario } from "src/tipo_usuario/entities/tipo_usuario.entity";
-import { Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-@Entity('usuario')
+import { Asignatura } from 'src/asignatura/entities/asignatura.entity';
+import { Asistencia } from 'src/asistencia/entities/asistencia.entity';
+import { Configuracion } from 'src/configuracion/entities/configuracion.entity';
+import { Inscripcion } from 'src/inscripcion/entities/inscripcion.entity';
+import { TipoUsuario } from 'src/tipo_usuario/entities/tipo_usuario.entity';
+import { ResponsableAlumno } from 'src/responsable_alumno/entities/responsable_alumno.entity';
+import {
+  Entity, PrimaryGeneratedColumn, Column, ManyToOne,
+  OneToMany, ManyToMany, JoinTable,
+  JoinColumn
+} from 'typeorm';
+import { UsuarioAsignatura } from 'src/usuario-asignatura/entities/usuario-asignatura.entity';
+
+
+@Entity()
 export class Usuario {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @PrimaryGeneratedColumn()
-    id: number;
+  @Column()
+  nombre: string;
 
-    @Column()
-    password: string;
-    
-    @Column()
-    email: string;
-  
-    @Column()
-    nombre: string;
+  @Column()
+  apellido: string;
 
-    @Column()
-    apellido: string;
+  @Column()
+  password: string;
 
-    @ManyToOne(() => TipoUsuario, (tipoUsuario) => tipoUsuario.usuarios)
-    tipo_usuario: TipoUsuario
+  @Column()
+  email: string;
 
-    @ManyToOne(() => ResponsableAlumno, (responsable_alumno) => responsable_alumno.usuarios)
-    responsable_alumno: ResponsableAlumno;
+@ManyToOne(() => TipoUsuario, tipo => tipo.usuarios, { eager: true })
+@JoinColumn({ name: 'tipoUsuarioId' })
+tipoUsuario: TipoUsuario;
 
-    @ManyToOne(() => Configuracion, (configuracion) => configuracion.usuarios)
-    configuracion: Configuracion;   
+  @ManyToOne(() => ResponsableAlumno, responsable => responsable.usuarios)
+  responsableAlumno: ResponsableAlumno;
 
-    @ManyToOne(() => Asistencia, (asistencia) => asistencia.usuarios)
-    asistencia: Asistencia;
+  @ManyToOne(() => Asistencia, asistencia => asistencia.usuarios, { nullable: true })
+  asistencia: Asistencia;
 
-    @ManyToOne(() => Inscripcion, (ins) => ins.usuarios)
-    inscripcion: Inscripcion;
 
+  @OneToMany(() => Inscripcion, inscripcion => inscripcion.usuario)
+  inscripciones: Inscripcion[];
+
+    // Relación con tabla intermedia usuario-asignatura
+  @OneToMany(() => UsuarioAsignatura, ua => ua.usuario)
+  asignaturas_asignadas: UsuarioAsignatura[];
 }
+
+
 

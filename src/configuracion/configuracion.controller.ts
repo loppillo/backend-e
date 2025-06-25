@@ -1,33 +1,49 @@
-import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, ParseIntPipe, Patch, BadRequestException, UseGuards } from '@nestjs/common';
 import { ConfiguracionService } from './configuracion.service';
 import { Configuracion } from './entities/configuracion.entity';
+import { CreateConfiguracionDto } from './dto/create-configuracion.dto';
+import { UpdateConfiguracionDto } from './dto/update-configuracion.dto';
+
+import { AuthGuard } from 'src/auth/guard/auth.guard';
+
 
 @Controller('configuracion')
 export class ConfiguracionController {
   constructor(private readonly configuracionService: ConfiguracionService) {}
-
   @Get()
   findAll(): Promise<Configuracion[]> {
     return this.configuracionService.findAll();
   }
-
   @Get(':id')
-  findOne(@Param('id') id: number): Promise<Configuracion> {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<Configuracion> {
     return this.configuracionService.findOne(id);
   }
-
   @Post()
-  create(@Body() data: Partial<Configuracion>): Promise<Configuracion> {
-    return this.configuracionService.create(data);
+  create(@Body() createConfiguracionDto: CreateConfiguracionDto): Promise<Configuracion> {
+    return this.configuracionService.create(createConfiguracionDto);
   }
-
-  @Put(':id')
-  update(@Param('id') id: number, @Body() data: Partial<Configuracion>): Promise<Configuracion> {
-    return this.configuracionService.update(id, data);
+  @Patch(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateConfiguracionDto: UpdateConfiguracionDto,
+  ): Promise<Configuracion> {
+    return this.configuracionService.update(id, updateConfiguracionDto);
   }
-
   @Delete(':id')
-  delete(@Param('id') id: number): Promise<void> {
-    return this.configuracionService.delete(id);
+  remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    return this.configuracionService.remove(id);
   }
+  @Patch('reducir/:clave')
+reducirCupo(@Param('clave') clave: string) {
+  return this.configuracionService.reducirValor(clave);
+}
+ @Get('asignatura/:id')
+getConfiguracionesPorAsignatura(@Param('id') id: string) {
+  const idNum = parseInt(id, 10);
+  if (isNaN(idNum)) {
+    throw new BadRequestException('ID inválido');
+  }
+  return this.configuracionService.getPorAsignatura(idNum);
+}
+
 }

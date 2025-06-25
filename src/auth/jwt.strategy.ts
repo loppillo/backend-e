@@ -1,6 +1,6 @@
 // jwt.strategy.ts
 
-import { Injectable } from "@nestjs/common/decorators";
+import { Injectable } from "@nestjs/common";
 import { jwtConstants } from "./constants";
 import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy } from "passport-jwt";
@@ -16,12 +16,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    // Aquí asignas el payload al usuario y lo retornas
+    // El payload debe contener los campos que firmaste en el token
     return { 
       userId: payload.sub, 
       username: payload.username, 
       role: payload.role, 
-      regionId: payload.regionId, // Asegúrate de devolver regionId
+      regionId: payload.regionId,
     };
   }
 }

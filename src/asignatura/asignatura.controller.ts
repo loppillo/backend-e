@@ -1,37 +1,36 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch, Delete, UseGuards } from '@nestjs/common';
 import { AsignaturaService } from './asignatura.service';
 import { CreateAsignaturaDto } from './dto/create-asignatura.dto';
 import { UpdateAsignaturaDto } from './dto/update-asignatura.dto';
-import { Asignatura } from './entities/asignatura.entity';
+import { AuthGuard } from 'src/auth/guard/auth.guard';
 
 
-
-@Controller('asignatura')
+@Controller('asignaturas')
 export class AsignaturaController {
- constructor(private readonly asignaturaService: AsignaturaService) {}
+  constructor(private readonly asignaturaService: AsignaturaService) {}
+
+  @Post()
+  create(@Body() dto: CreateAsignaturaDto) {
+    return this.asignaturaService.create(dto);
+  }
 
   @Get()
-  findAll(): Promise<Asignatura[]> {
+  findAll() {
     return this.asignaturaService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number): Promise<Asignatura> {
-    return this.asignaturaService.findOne(id);
+  findOne(@Param('id') id: string) {
+    return this.asignaturaService.findOne(+id);
   }
 
-  @Post()
-  create(@Body() body: Partial<Asignatura>): Promise<Asignatura> {
-    return this.asignaturaService.create(body);
-  }
-
-  @Put(':id')
-  update(@Param('id') id: number, @Body() body: Partial<Asignatura>): Promise<Asignatura> {
-    return this.asignaturaService.update(id, body);
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() dto: UpdateAsignaturaDto) {
+    return this.asignaturaService.update(+id, dto);
   }
 
   @Delete(':id')
-  delete(@Param('id') id: number): Promise<void> {
-    return this.asignaturaService.delete(id);
+  remove(@Param('id') id: string) {
+    return this.asignaturaService.remove(+id);
   }
 }
