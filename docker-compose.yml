@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  nestjs_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nestjs_app
+    restart: always
+    environment:
+      DATABASE_HOST: mysql_db # 'mysql_db' is the service name for MySQL
+      DATABASE_PORT: 3306
+      DATABASE_USER: root
+      DATABASE_PASSWORD: polo6969
+      DATABASE_NAME: colegio
+    depends_on:
+      - mysql_db
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx_proxy
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - nestjs_app
+
+  mysql_db:
+    image: mysql:8.0
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: nestdb
+      MYSQL_USER: nestuser
+      MYSQL_PASSWORD: nestpassword
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
