@@ -22,8 +22,16 @@ import { UsuarioAsignaturaModule } from './usuario-asignatura/usuario-asignatura
 
 
 @Module({
-  imports: [ TypeOrmModule.forRoot({
-    type: 'mysql',
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+       
+      type: 'mysql',
     host: '54.233.112.14',
     port: 3306,
     username: 'root',
@@ -31,9 +39,20 @@ import { UsuarioAsignaturaModule } from './usuario-asignatura/usuario-asignatura
     database: 'colegio',
     entities: [__dirname + '/**/*.entity{.ts,.js}'],
     synchronize: true,
-  }),UsuarioModule,AsignaturaModule, InscripcionModule, ConfiguracionModule, TipoUsuarioModule, ResponsableAlumnoModule, AsistenciaModule, MailModule,AuthModule, UsuarioAsignaturaModule
-
-],
+      }),
+      inject: [ConfigService],
+    }),
+    UsuarioModule,
+    AsignaturaModule,
+    InscripcionModule,
+    ConfiguracionModule,
+    TipoUsuarioModule,
+    ResponsableAlumnoModule,
+    AsistenciaModule,
+    MailModule,
+    AuthModule,
+    UsuarioAsignaturaModule
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
