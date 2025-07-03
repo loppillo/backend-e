@@ -32,7 +32,7 @@ import { UsuarioAsignaturaModule } from './usuario-asignatura/usuario-asignatura
       useFactory: (configService: ConfigService) => ({
        
       type: 'mysql',
-    host: '54.233.112.14',
+    host: '15.229.6.166',
     port: 3306,
     username: 'root',
     password: 'M-ZhJcoi>3,S',
