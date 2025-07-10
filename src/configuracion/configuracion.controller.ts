@@ -46,4 +46,27 @@ getConfiguracionesPorAsignatura(@Param('id') id: string) {
   return this.configuracionService.getPorAsignatura(idNum);
 }
 
+@Get('defecto')
+  async getConfiguracionDefecto() {
+    return this.configuracionService.getConfiguracionDefecto();
+  }
+
+  // Endpoint para verificar si existe configuración específica para una asignatura
+  @Get('asignatura/:asignaturaId/existe')
+  async existeConfiguracionPorAsignatura(
+    @Param('asignaturaId', ParseIntPipe) asignaturaId: number
+  ) {
+    return this.configuracionService.existeConfiguracionPorAsignatura(asignaturaId);
+  }
+
+  // Endpoint para obtener configuración específica por asignatura
+  @Get('asignatura/:asignaturaId')
+  async getConfiguracionesPorAsignaturas(
+    @Param('asignaturaId', ParseIntPipe) asignaturaId: number
+  ) {
+    return this.configuracionService.getConfiguracionesPorAsignatura(asignaturaId);
+  }
+
+
+
 }

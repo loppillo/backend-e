@@ -13,7 +13,10 @@ export class ResponsableAlumno {
   @Column()
   correo: string;
 
-  @OneToMany(() => Usuario, usuario => usuario.responsableAlumno)
-  usuarios: Usuario[];
+ @OneToMany(() => Usuario, usuario => usuario.responsable1)
+usuarios1: Usuario[];
+
+@OneToMany(() => Usuario, usuario => usuario.responsable2)
+usuarios2: Usuario[];
 
 }

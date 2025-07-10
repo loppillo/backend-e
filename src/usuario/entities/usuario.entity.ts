@@ -33,8 +33,13 @@ export class Usuario {
 @JoinColumn({ name: 'tipoUsuarioId' })
 tipoUsuario: TipoUsuario;
 
-  @ManyToOne(() => ResponsableAlumno, responsable => responsable.usuarios)
-  responsableAlumno: ResponsableAlumno;
+@ManyToOne(() => ResponsableAlumno, { eager: true })
+@JoinColumn({ name: 'responsable1Id' })
+responsable1: ResponsableAlumno;
+
+@ManyToOne(() => ResponsableAlumno, { eager: true })
+@JoinColumn({ name: 'responsable2Id' })
+responsable2: ResponsableAlumno;
 
   @ManyToOne(() => Asistencia, asistencia => asistencia.usuarios, { nullable: true })
   asistencia: Asistencia;

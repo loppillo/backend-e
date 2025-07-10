@@ -51,7 +51,8 @@ import { UsuarioAsignaturaModule } from './usuario-asignatura/usuario-asignatura
     AsistenciaModule,
     MailModule,
     AuthModule,
-    UsuarioAsignaturaModule
+    UsuarioAsignaturaModule,
+  
   ],
   controllers: [AppController],
   providers: [AppService],

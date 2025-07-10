@@ -142,7 +142,9 @@ async getInscripcionesPorUsuarioSemana(usuarioId: number, fechaInicio: string, f
     relations: [
       'asignatura',
       'usuario',
-      'usuario.tipoUsuario' // muy importante
+      'usuario.tipoUsuario',
+      'usuario.responsable1',
+  'usuario.responsable2' // ⬅️ Añadido aquí
     ]
   });
 
@@ -167,6 +169,7 @@ async getInscripcionesPorUsuarioSemana(usuarioId: number, fechaInicio: string, f
 
   return inscripciones;
 }
+
 
 
 

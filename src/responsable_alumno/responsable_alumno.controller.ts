@@ -1,34 +1,54 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, Put } from '@nestjs/common';
 import { ResponsableAlumnoService } from './responsable_alumno.service';
 import { CreateResponsableAlumnoDto } from './dto/create-responsable_alumno.dto';
 import { UpdateResponsableAlumnoDto } from './dto/update-responsable_alumno.dto';
 
 @Controller('responsable-alumno')
 export class ResponsableAlumnoController {
-  constructor(private readonly responsableAlumnoService: ResponsableAlumnoService) {}
+  constructor(private readonly responsableService: ResponsableAlumnoService) {}
 
-  @Post()
-  create(@Body() createResponsableAlumnoDto: CreateResponsableAlumnoDto) {
-    return this.responsableAlumnoService.create(createResponsableAlumnoDto);
+
+  @Post('asignar')
+  async asignarResponsable(@Body() asignacionDto: CreateResponsableAlumnoDto) {
+    return this.responsableService.asignarResponsable(asignacionDto);
+  }
+
+  @Get('alumno/:alumnoId')
+  async obtenerResponsablesDeAlumno(@Param('alumnoId', ParseIntPipe) alumnoId: number) {
+    return this.responsableService.obtenerResponsablesDeAlumno(alumnoId);
+  }
+
+  @Get('responsable/:responsableId')
+  async obtenerAlumnosDeResponsable(@Param('responsableId', ParseIntPipe) responsableId: number) {
+    return this.responsableService.obtenerAlumnosDeResponsable(responsableId);
+  }
+
+  @Delete(':alumnoId/:responsableId')
+  async removerResponsable(
+    @Param('alumnoId', ParseIntPipe) alumnoId: number,
+    @Param('responsableId', ParseIntPipe) responsableId: number
+  ) {
+    return this.responsableService.removerResponsable(alumnoId, responsableId);
+  }
+
+  @Put(':alumnoId')
+  async actualizarResponsables(
+    @Param('alumnoId', ParseIntPipe) alumnoId: number,
+    @Body() responsablesDto: UpdateResponsableAlumnoDto
+  ) {
+    return this.responsableService.actualizarResponsables(alumnoId, responsablesDto);
   }
 
   @Get()
-  findAll() {
-    return this.responsableAlumnoService.findAll();
+  async obtenerTodasAsignaciones() {
+    return this.responsableService.obtenerTodasAsignaciones();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.responsableAlumnoService.findOne(+id);
+  @Get('disponibles')
+  async obtenerResponsablesDisponibles() {
+    return this.responsableService.obtenerResponsablesDisponibles();
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateResponsableAlumnoDto: UpdateResponsableAlumnoDto) {
-    return this.responsableAlumnoService.update(+id, updateResponsableAlumnoDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.responsableAlumnoService.remove(+id);
-  }
 }
+
+
