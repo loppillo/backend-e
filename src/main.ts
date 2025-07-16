@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import * as express from 'express';
 import { join } from 'path';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
 
 
 async function bootstrap() {
