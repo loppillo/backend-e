@@ -8,7 +8,7 @@ import { UsersService } from 'src/usuario/usuario.service';
 import { AsignaturaService } from 'src/asignatura/asignatura.service';
 import { MailService } from 'src/mail/mail.service';
 
-@Controller('inscripcion')
+@Controller('inscripciones')
 export class InscripcionController {
   constructor(private readonly inscripcionService: InscripcionService,
 
