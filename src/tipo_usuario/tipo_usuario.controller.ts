@@ -5,8 +5,8 @@ import { UpdateTipoUsuarioDto } from './dto/update-tipo_usuario.dto';
 
 import { AuthGuard } from 'src/auth/guard/auth.guard';
 
-  @UseGuards(AuthGuard)
 
+  @UseGuards(AuthGuard)
 @Controller('tipo-usuario')
 export class TipoUsuarioController {
   constructor(private readonly tipoUsuarioService: TipoUsuarioService) {}

@@ -2,11 +2,17 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, Put } 
 import { ResponsableAlumnoService } from './responsable_alumno.service';
 import { CreateResponsableAlumnoDto } from './dto/create-responsable_alumno.dto';
 import { UpdateResponsableAlumnoDto } from './dto/update-responsable_alumno.dto';
+import { CrearResponsable } from './dto/crear-responsable.dto';
 
 @Controller('responsable-alumno')
 export class ResponsableAlumnoController {
   constructor(private readonly responsableService: ResponsableAlumnoService) {}
 
+  
+  @Post()
+  async create(@Body() createResponsableDto: CrearResponsable) {
+    return this.responsableService.create(createResponsableDto);
+  }
 
   @Post('asignar')
   async asignarResponsable(@Body() asignacionDto: CreateResponsableAlumnoDto) {

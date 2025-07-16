@@ -7,17 +7,19 @@ export class MailService {
 
   constructor() {
     this.transporter = nodemailer.createTransport({
-      host: 'mail.emdool.cl',
+      host: 'c2631687.ferozo.com',
       port: 465,
       secure: true,
       auth: {
-        user: 'ramos.epullay@emdool.cl',
-        pass: 'Fran709EpuRamos#',
+        user: 'ramos.epullay@olemdo.cl',
+        pass: 'Fran709EpuRamos@',
       },
     });
   }
 
-  async enviarCorreo(to: string, subject: string, html: string) {
+  
+
+  async enviarCorreo(to:string, subject: string, html: string) {
     await this.transporter.sendMail({
       from: '"Sistema de Inscripción"',
       to,

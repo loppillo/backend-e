@@ -4,7 +4,6 @@ import { CreateAsignaturaDto } from './dto/create-asignatura.dto';
 import { UpdateAsignaturaDto } from './dto/update-asignatura.dto';
 import { AuthGuard } from 'src/auth/guard/auth.guard';
 
-
 @Controller('asignaturas')
 export class AsignaturaController {
   constructor(private readonly asignaturaService: AsignaturaService) {}

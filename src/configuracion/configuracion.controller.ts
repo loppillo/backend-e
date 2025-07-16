@@ -6,7 +6,6 @@ import { UpdateConfiguracionDto } from './dto/update-configuracion.dto';
 
 import { AuthGuard } from 'src/auth/guard/auth.guard';
 
-
 @Controller('configuracion')
 export class ConfiguracionController {
   constructor(private readonly configuracionService: ConfiguracionService) {}

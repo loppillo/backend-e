@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import * as express from 'express';
 import { join } from 'path';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 
 async function bootstrap() {
@@ -19,6 +20,8 @@ async function bootstrap() {
   );
   app.use('/uploads', express.static(join(__dirname, '..', 'uploads')));
   app.use('/templates', express.static(join(__dirname, '..', 'templates')));
+
 await app.listen(3000, '0.0.0.0');
+// No usar una función aquí
 }
 bootstrap();

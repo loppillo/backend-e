@@ -1,10 +1,11 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateResponsableAlumnoDto } from './dto/create-responsable_alumno.dto';
 import { UpdateResponsableAlumnoDto } from './dto/update-responsable_alumno.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { Repository } from 'typeorm';
 import { ResponsableAlumno } from './entities/responsable_alumno.entity';
+import { CrearResponsable } from './dto/crear-responsable.dto';
 
 @Injectable()
 export class ResponsableAlumnoService {
@@ -244,5 +245,23 @@ export class ResponsableAlumnoService {
     return await this.responsableRepository.find({
       select: ['id', 'nombre', 'correo']
     });
+  }
+
+
+  async create(createResponsableDto: CrearResponsable): Promise<ResponsableAlumno> {
+    // Verificar que el correo no exista
+    const existeCorreo = await this.responsableRepository.findOne({
+      where: { correo: createResponsableDto.correo }
+    });
+
+    if (existeCorreo) {
+      throw new ConflictException('Ya existe un responsable con este correo');
+    }
+
+    const responsable = this.responsableRepository.create({
+      ...createResponsableDto,
+    });
+
+    return this.responsableRepository.save(responsable);
   }
 }

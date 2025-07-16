@@ -144,7 +144,9 @@ async getInscripcionesPorUsuarioSemana(usuarioId: number, fechaInicio: string, f
       'usuario',
       'usuario.tipoUsuario',
       'usuario.responsable1',
-  'usuario.responsable2' // ⬅️ Añadido aquí
+      'usuario.responsable2',
+      'usuario.curso',   // taller vinculado al usuario
+      'usuario.curso.talleres'    // curso vinculado al usuario
     ]
   });
 
@@ -173,11 +175,21 @@ async getInscripcionesPorUsuarioSemana(usuarioId: number, fechaInicio: string, f
 
 
 
+
 async findByUsuarioAndAsignaturas(usuarioId: number, asignaturaIds: number[]) {
+  // Filtrar IDs no válidos
+  const ids = (asignaturaIds || [])
+    .map(id => Number(id))
+    .filter(id => Number.isFinite(id) && Number.isInteger(id) && id > 0);
+  if (!ids.length) {
+    // Log defensivo para depuración
+    console.warn('findByUsuarioAndAsignaturas: No hay IDs válidos', { usuarioId, asignaturaIdsOriginal: asignaturaIds });
+    return [];
+  }
   return this.inscripcionRepo.find({
     where: {
       usuario: { id: usuarioId },
-      asignatura: { id: In(asignaturaIds) },
+      asignatura: { id: In(ids) },
     },
     relations: ['asignatura', 'usuario'],
   });

@@ -10,6 +10,5 @@ export class CreateResponsableAlumnoDto {
   responsableId: number;
 
   @IsEnum(['responsable1', 'responsable2'])
-  @IsNotEmpty()
   tipo: 'responsable1' | 'responsable2';
 }

@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
@@ -11,6 +11,8 @@ import { TipoUsuario } from '../tipo_usuario/entities/tipo_usuario.entity'; // A
 import { ResponsableAlumno } from '../responsable_alumno/entities/responsable_alumno.entity'; // Adjust the path as needed
 import { Configuracion } from '../configuracion/entities/configuracion.entity'; // Adjust the path as needed
 import { JwtService } from '@nestjs/jwt';
+import { Taller } from 'src/taller/entities/taller.entity';
+import { Curso } from 'src/curso/entities/curso.entity';
 
 @Injectable()
 export class UsersService {
@@ -26,6 +28,12 @@ export class UsersService {
 
     @InjectRepository(Configuracion)
     private readonly configuracionRepo: Repository<Configuracion>,
+
+    @InjectRepository(Curso)
+    private readonly cursoRepo: Repository<Curso>,
+
+    @InjectRepository(Taller)
+    private readonly tallerRepo: Repository<Taller>,
 
   ) {}
 
@@ -68,6 +76,33 @@ export class UsersService {
   }
 
 
+async obtenerTalleresPorUsuario(usuarioId: number): Promise<Taller[]> {
+  const usuario = await this.userRepository.findOne({
+    where: { id: usuarioId },
+    relations: ['curso', 'curso.talleres'], // Importantísimo
+  });
+
+  if (!usuario || !usuario.curso) {
+    throw new NotFoundException('Usuario o curso no encontrado');
+  }
+
+  return usuario.curso.talleres;
+}
+
+async asignarCursoYTalleres(
+  usuarioId: number,
+  cursoId: number,
+  tallerIds: number[]
+): Promise<Usuario> {
+  const usuario = await this.userRepository.findOneBy({ id: usuarioId });
+  const curso = await this.cursoRepo.findOneBy({ id: cursoId });
+  const talleres = await this.tallerRepo.findByIds(tallerIds);
+
+  usuario.curso = curso;
+  usuario.curso.talleres = talleres;
+
+  return await this.userRepository.save(usuario);
+}
 
 
 }

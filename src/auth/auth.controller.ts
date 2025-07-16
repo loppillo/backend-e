@@ -8,12 +8,14 @@ import { RegisterDto } from './dto/register.dto';
 import { TipoUsuario } from 'src/tipo_usuario/entities/tipo_usuario.entity';
 
 
+
 interface RequestWithUser extends Request {
   user: {
     email: string;
     role: string;
   };
 }
+
 
 @Controller('auth')
 export class AuthController {

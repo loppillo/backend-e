@@ -15,6 +15,9 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 import { MailModule } from './mail/mail.module';
 import { AuthModule } from './auth/auth.module';
 import { UsuarioAsignaturaModule } from './usuario-asignatura/usuario-asignatura.module';
+import { CursoModule } from './curso/curso.module';
+import { TallerModule } from './taller/taller.module';
+import { CursoTallerModule } from './curso_taller/curso_taller.module';
 
 
 
@@ -30,14 +33,13 @@ import { UsuarioAsignaturaModule } from './usuario-asignatura/usuario-asignatura
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-       
-      type: 'mysql',
-    host: '15.229.6.166',
-    port: 3306,
-    username: 'root',
-    password: 'M-ZhJcoi>3,S',
-    database: 'colegio',
-    entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        type: 'mysql',
+        host: '162.241.61.254',
+        port: 3306,
+        username: 'fenfurna_lopo',     // Cambiar según tu configuración
+        password: 'b&jTYe?&t^S!', // Cambiar según tu configuración
+        database: 'fenfurna_epullay', // Cambiar según tu configuración
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
     synchronize: true,
       }),
       inject: [ConfigService],
@@ -52,6 +54,9 @@ import { UsuarioAsignaturaModule } from './usuario-asignatura/usuario-asignatura
     MailModule,
     AuthModule,
     UsuarioAsignaturaModule,
+    CursoModule,
+    TallerModule,
+    CursoTallerModule,
   
   ],
   controllers: [AppController],
