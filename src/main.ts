@@ -9,7 +9,14 @@ import { join } from 'path';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix("api/v1");
-  app.enableCors();
+ 
+  app.enableCors({
+    origin: 'https://epullay.olemdo.cl',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,  // si usas cookies o auth
+  });
+
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
