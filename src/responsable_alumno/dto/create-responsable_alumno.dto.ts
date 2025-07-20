@@ -1,4 +1,4 @@
-import { IsNumber, IsNotEmpty, IsEnum } from "class-validator";
+import { IsNumber, IsNotEmpty, IsEnum, IsOptional } from "class-validator";
 
 export class CreateResponsableAlumnoDto {
     @IsNumber()
@@ -9,6 +9,6 @@ export class CreateResponsableAlumnoDto {
   @IsNotEmpty()
   responsableId: number;
 
-  @IsEnum(['responsable1', 'responsable2'])
+ @IsOptional()
   tipo: 'responsable1' | 'responsable2';
 }

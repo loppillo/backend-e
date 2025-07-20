@@ -29,10 +29,7 @@ export class ResponsableAlumnoService {
       throw new NotFoundException('Alumno no encontrado');
     }
 
-    // Verificar que es un alumno
-    if (alumno.tipoUsuario.tipo !== 'alumno') {
-      throw new BadRequestException('El usuario debe ser de tipo alumno');
-    }
+   
 
     // Verificar que el responsable existe
     const responsable = await this.responsableRepository.findOne({
