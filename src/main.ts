@@ -12,6 +12,7 @@ async function bootstrap() {
  
   app.enableCors({
       origin: 'https://epullay.olemdo.cl',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,  // si usas cookies o auth
   });
 
