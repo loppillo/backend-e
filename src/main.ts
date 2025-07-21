@@ -11,9 +11,10 @@ async function bootstrap() {
   app.setGlobalPrefix("api/v1");
  
   app.enableCors({
-         origin: ['https://olemdo.cl','http://localhost:3000', 'http://www.olemdo.cl','http://localhost:4200'], // Dominios permitidos
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,  // si usas cookies o auth
+         origin: ['https://olemdo.cl','http://localhost:3000', 'http://www.olemdo.cl','http://localhost:4200','https://epullay.olemdo.cl'], // Dominios permitidos
+    credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Authorization', 'Content-Type', 'Accept', 'Origin'], // si usas cookies o auth
   });
 
 
