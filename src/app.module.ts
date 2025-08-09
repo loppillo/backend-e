@@ -18,6 +18,7 @@ import { UsuarioAsignaturaModule } from './usuario-asignatura/usuario-asignatura
 import { CursoModule } from './curso/curso.module';
 import { TallerModule } from './taller/taller.module';
 import { CursoTallerModule } from './curso_taller/curso_taller.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 
 
@@ -26,12 +27,13 @@ import { CursoTallerModule } from './curso_taller/curso_taller.module';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
     }),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
+       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         type: 'mysql',
         host: '162.241.61.254',
@@ -40,6 +42,7 @@ import { CursoTallerModule } from './curso_taller/curso_taller.module';
         password: 'b&jTYe?&t^S!', // Cambiar según tu configuración
         database: 'fenfurna_epullay', // Cambiar según tu configuración
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
+
     synchronize: true,
       }),
       inject: [ConfigService],

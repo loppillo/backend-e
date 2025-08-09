@@ -10,8 +10,8 @@ import {
 export class Inscripcion {
   @PrimaryGeneratedColumn()
   id: number;
-  @Column({ type: 'date' }) // <-- NO 'datetime'
-  fecha: string;
+  @Column({ type: 'datetime' }) // <--- Cambiado a datetime
+  fecha: Date;
 
   @Column({ type: 'tinyint', default: 1 })
   inscrito: boolean;

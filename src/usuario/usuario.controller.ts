@@ -51,5 +51,12 @@ async asignarCursoTalleres(
   return this.usuarioService.asignarCursoYTalleres(id, dto.cursoId, dto.tallerIds);
 }
 
+@Get(':id/detalle')
+  async getDetalleUsuario(@Param('id') id: number) {
+    return this.usuarioService.getDetalleUsuario(+id);
+  }
+
+
+
 }
 

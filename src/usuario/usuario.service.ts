@@ -6,7 +6,7 @@ import { CreateAlumnoDto } from './dto/create-alumno.dto'; // Adjust the path as
 import { CreateProfesorDto } from './dto/create-profesor.dto'; // Adjust the path as needed
 import { CreateAdminDto } from './dto/create-admin.dto'; // Adjust the path as needed
 import { Usuario } from './entities/usuario.entity';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import { TipoUsuario } from '../tipo_usuario/entities/tipo_usuario.entity'; // Adjusted the path to the correct location
 import { ResponsableAlumno } from '../responsable_alumno/entities/responsable_alumno.entity'; // Adjust the path as needed
 import { Configuracion } from '../configuracion/entities/configuracion.entity'; // Adjust the path as needed
@@ -104,10 +104,49 @@ async asignarCursoYTalleres(
   return await this.userRepository.save(usuario);
 }
 
+  async getDetalleUsuario(id: number) {
+    const usuario = await this.userRepository.findOne({
+      where: { id },
+      relations: [
+        'responsable1',
+        'responsable2',
+        'curso',
+        'curso.talleres',
+        'tipoUsuario',
+      ],
+    });
 
+    if (!usuario) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    return usuario;
+  }
+
+async findAlumnosConCorreo(): Promise<Usuario[]> {
+  return this.userRepository.find({
+    where: {
+      tipoUsuario: {
+        tipo: 'alumno',
+      },
+      email: Not(IsNull()),
+    },
+    relations: ['tipoUsuario'], // por si no tienes eager en algunos entornos
+  });
 }
 
+async findAlumnosNoInscritos(): Promise<Usuario[]> {
+  return this.userRepository
+    .createQueryBuilder('usuario')
+    .leftJoin('usuario.tipoUsuario', 'tipoUsuario')
+    .leftJoin('usuario.inscripciones', 'inscripcion')
+    .where('tipoUsuario.nombre = :tipo', { tipo: 'alumno' })
+    .andWhere('(inscripcion.id IS NULL OR inscripcion.inscrito = false)')
+    .andWhere('usuario.email IS NOT NULL')
+    .getMany();
+}
 
+}
 
 
 

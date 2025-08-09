@@ -4,14 +4,20 @@ import { Repository } from 'typeorm';
 import { Configuracion } from './entities/configuracion.entity';
 import { CreateConfiguracionDto } from './dto/create-configuracion.dto';
 import { UpdateConfiguracionDto } from './dto/update-configuracion.dto';
-
+import { DateTime } from 'luxon';
 
 @Injectable()
 export class ConfiguracionService {
+  private lastFetchTime: number = 0;
+private cacheDurationMs = 5 * 60 * 1000; // 5 minutos
+private configCache: Map<string, number> = new Map();
   constructor(
     @InjectRepository(Configuracion)
     private readonly configuracionRepository: Repository<Configuracion>,
   ) {}
+
+
+
   async findAll(): Promise<Configuracion[]> {
     return this.configuracionRepository.find();
   }
@@ -49,19 +55,11 @@ export class ConfiguracionService {
   return this.configuracionRepository.save(config);
 }
 
-async getPorAsignatura(asignaturaId: number): Promise<Record<string, string>> {
-  const configuraciones = await this.configuracionRepository.findBy({ asignaturaId });
-  const resultado: Record<string, string> = {};
-  for (const config of configuraciones) {
-    resultado[config.clave] = config.valor;
-  }
-  return resultado;
-}
+
 
 async getConfiguracionDefecto(): Promise<Record<string, string>> {
     try {
       const configuraciones = await this.configuracionRepository.find({
-        where: { asignatura: null }, // Configuraciones globales
         select: ['clave', 'valor']
       });
 
@@ -89,67 +87,91 @@ async getConfiguracionDefecto(): Promise<Record<string, string>> {
   }
 
   // Verificar si existe configuración específica para una asignatura
-  async existeConfiguracionPorAsignatura(asignaturaId: number): Promise<boolean> {
-    try {
-      const count = await this.configuracionRepository.count({
-        where: { asignatura: { id: asignaturaId } }
-      });
-      return count > 0;
-    } catch (error) {
-      console.error(`Error al verificar configuración para asignatura ${asignaturaId}:`, error);
-      return false;
-    }
+ 
+
+
+  
+
+
+  async findByClave(clave: string): Promise<Configuracion | null> {
+    return this.configuracionRepository.findOne({ where: { clave } });
   }
 
-  // Obtener configuraciones específicas por asignatura
-  async getConfiguracionesPorAsignatura(asignaturaId: number): Promise<Record<string, string>> {
-    try {
-      const configuraciones = await this.configuracionRepository.find({
-        where: { asignatura: { id: asignaturaId } },
-        select: ['clave', 'valor']
-      });
+ 
 
-      if (configuraciones.length === 0) {
-        throw new NotFoundException(`No se encontraron configuraciones para la asignatura ${asignaturaId}`);
-      }
-
-      const configObj: Record<string, string> = {};
-      configuraciones.forEach(config => {
-        configObj[config.clave] = config.valor.toString();
-      });
-
-      return configObj;
-    } catch (error) {
-      console.error(`Error al obtener configuraciones para asignatura ${asignaturaId}:`, error);
-      throw error;
-    }
+  async getAll(): Promise<Configuracion[]> {
+    return this.configuracionRepository.find();
   }
 
-  // Método auxiliar para obtener configuración con fallback automático
-  async getConfiguracionConFallback(asignaturaId?: number): Promise<Record<string, string>> {
-    try {
-      if (asignaturaId) {
-        const existe = await this.existeConfiguracionPorAsignatura(asignaturaId);
-        if (existe) {
-          return await this.getConfiguracionesPorAsignatura(asignaturaId);
-        }
-      }
-      
-      // Fallback a configuración por defecto
-      return await this.getConfiguracionDefecto();
-    } catch (error) {
-      console.error('Error al obtener configuración con fallback:', error);
-      // Último fallback - valores hardcodeados
-      return {
-        'semana_visible': '2',
-        'max_inscripciones_semana': '2',
-        'cupos': '20',
-        'inscripciones_por_dia': '5',
-        'dias_habiles': '3,4'
-      };
+    async updates(clave: string, valor: string): Promise<Configuracion> {
+    let config = await this.findByClave(clave);
+    if (!config) {
+      config = this.configuracionRepository.create({ clave, valor });
+    } else {
+      config.valor = valor;
     }
+    return this.configuracionRepository.save(config);
   }
 
 
+ async esPeriodoInscripcionActivo(): Promise<boolean> {
+  const apertura = await this.findByClave('inscripcion_apertura');
+  const cierre = await this.findByClave('inscripcion_cierre');
+
+  if (!apertura || !cierre) return false;
+
+  const ahora = DateTime.now().setZone('America/Santiago');
+  const aperturaDT = DateTime.fromISO(apertura.valor, { zone: 'America/Santiago' });
+  const cierreDT = DateTime.fromISO(cierre.valor, { zone: 'America/Santiago' });
+
+  return ahora >= aperturaDT && ahora <= cierreDT;
+}
+
+  async obtenerValor(clave: string): Promise<string> {
+    const config = await this.configuracionRepository.findOneBy({ clave });
+    if (!config) throw new NotFoundException(`Configuración ${clave} no encontrada`);
+    return config.valor;
+  }
+
+
+
+  async actualizarValor(clave: string, nuevoValor: string): Promise<void> {
+    const config = await this.configuracionRepository.findOneBy({ clave });
+    if (!config) {
+      await this.configuracionRepository.save({ clave, valor: nuevoValor, descripcion: '' });
+    } else {
+      config.valor = nuevoValor;
+      await this.configuracionRepository.save(config);
+    }
+  }
+
+  async incrementar(clave: string): Promise<void> {
+    const actual = await this.obtenerNumero(clave);
+    await this.actualizarValor(clave, (actual + 1).toString());
+  }
+
+  async reiniciar(clave: string): Promise<void> {
+    await this.actualizarValor(clave, '1');
+  }
+
+ async obtenerNumero(clave: string): Promise<number> {
+  const now = Date.now();
+  if (this.configCache.has(clave) && now - this.lastFetchTime < this.cacheDurationMs) {
+    return this.configCache.get(clave);
+  }
+
+  const config = await this.configuracionRepository.findOne({ where: { clave } });
+  if (!config) throw new Error(`Configuración no encontrada: ${clave}`);
+  const valor = Number(config.valor);
+  this.configCache.set(clave, valor);
+  this.lastFetchTime = now;
+  return valor;
+}
+
+  async obtenerTexto(clave: string): Promise<string> {
+    const config = await this.configuracionRepository.findOne({ where: { clave } });
+    if (!config) throw new Error(`Configuración no encontrada: ${clave}`);
+    return config.valor;
+  }
 }
 

@@ -16,10 +16,4 @@ export class Configuracion {
   @Column({ type: 'text', nullable: true })
   descripcion: string;
 
- @ManyToOne(() => Asignatura, asignatura => asignatura.configuracion)
-@JoinColumn({ name: 'asignaturaId' })
-asignatura: Asignatura;
-
-@Column()
-asignaturaId: number;
 }

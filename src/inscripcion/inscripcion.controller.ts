@@ -167,6 +167,21 @@ async enviarCorreoApoderado(@Body() body: { alumnoId: number; asignaturas: numbe
   return { message: 'Correo enviado correctamente' };
 }
 
+@Get('usuario/:id/asignaturas-contador')
+async obtenerContador(@Param('id') id: number) {
+  return this.inscripcionService.contarAsignaturasPorUsuario(id);
+}
+
+@Get('verificar/:usuarioId/:asignaturaId')
+async verificarRestricciones(
+  @Param('usuarioId', ParseIntPipe) usuarioId: number,
+  @Param('asignaturaId', ParseIntPipe) asignaturaId: number,
+) {
+  await this.inscripcionService.verificarRestriccionesInscripcion(usuarioId, asignaturaId);
+  return { puedeInscribirse: true }; // si no lanza excepción, puede inscribirse
+}
+
+
 }
 
 

@@ -8,7 +8,12 @@ import { AuthGuard } from 'src/auth/guard/auth.guard';
 
 @Controller('configuracion')
 export class ConfiguracionController {
-  constructor(private readonly configuracionService: ConfiguracionService) {}
+  constructor(private readonly configuracionService: ConfiguracionService) { }
+  @Put('updates')
+  updates(@Body() body: { clave: string; valor: string }) {
+    return this.configuracionService.updates(body.clave, body.valor);
+  }
+
   @Get()
   findAll(): Promise<Configuracion[]> {
     return this.configuracionService.findAll();
@@ -32,40 +37,60 @@ export class ConfiguracionController {
   remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.configuracionService.remove(id);
   }
-  @Patch('reducir/:clave')
-reducirCupo(@Param('clave') clave: string) {
-  return this.configuracionService.reducirValor(clave);
-}
- @Get('asignatura/:id')
-getConfiguracionesPorAsignatura(@Param('id') id: string) {
-  const idNum = parseInt(id, 10);
-  if (isNaN(idNum)) {
-    throw new BadRequestException('ID inválido');
-  }
-  return this.configuracionService.getPorAsignatura(idNum);
-}
 
-@Get('defecto')
+  @Patch('reducir/:clave')
+  reducirCupo(@Param('clave') clave: string) {
+    return this.configuracionService.reducirValor(clave);
+  }
+
+
+  @Get('defecto')
   async getConfiguracionDefecto() {
     return this.configuracionService.getConfiguracionDefecto();
   }
 
   // Endpoint para verificar si existe configuración específica para una asignatura
-  @Get('asignatura/:asignaturaId/existe')
-  async existeConfiguracionPorAsignatura(
-    @Param('asignaturaId', ParseIntPipe) asignaturaId: number
-  ) {
-    return this.configuracionService.existeConfiguracionPorAsignatura(asignaturaId);
+
+
+  @Get('inscripcion/activa')
+  async esInscripcionActiva(): Promise<boolean> {
+    return this.configuracionService.esPeriodoInscripcionActivo();
   }
 
-  // Endpoint para obtener configuración específica por asignatura
-  @Get('asignatura/:asignaturaId')
-  async getConfiguracionesPorAsignaturas(
-    @Param('asignaturaId', ParseIntPipe) asignaturaId: number
-  ) {
-    return this.configuracionService.getConfiguracionesPorAsignatura(asignaturaId);
+  // Obtener el valor como string
+  @Get('valor/:clave')
+  async obtenerValor(@Param('clave') clave: string) {
+    return { clave, valor: await this.configuracionService.obtenerValor(clave) };
   }
 
+  // Obtener el valor como número
+  @Get('numero/:clave')
+  async obtenerNumero(@Param('clave') clave: string) {
+    return { clave, valor: await this.configuracionService.obtenerNumero(clave) };
+  }
 
+  // Actualizar un valor (string o número)
+  @Patch(':clave')
+  async actualizarValor(
+    @Param('clave') clave: string,
+    @Body('valor') nuevoValor: string,
+  ) {
+    await this.configuracionService.actualizarValor(clave, nuevoValor);
+    return { mensaje: `Configuración '${clave}' actualizada a '${nuevoValor}'` };
+  }
+
+  // Incrementar valor numérico
+  @Patch('incrementar/:clave')
+  async incrementar(@Param('clave') clave: string) {
+    await this.configuracionService.incrementar(clave);
+    return { mensaje: `Configuración '${clave}' incrementada` };
+  }
+
+  // Reiniciar valor (a 1)
+  @Patch('reiniciar/:clave')
+  async reiniciar(@Param('clave') clave: string) {
+    await this.configuracionService.reiniciar(clave);
+    return { mensaje: `Configuración '${clave}' reiniciada a 1` };
+  }
 
 }

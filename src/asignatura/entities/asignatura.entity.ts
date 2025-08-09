@@ -33,10 +33,6 @@ export class Asignatura {
 
   @OneToMany(() => Inscripcion, inscripcion => inscripcion.asignatura)
   inscripciones: Inscripcion[];
-
-   @OneToMany(() => Configuracion, conf => conf.asignatura)
-   configuracion: Configuracion[];
-
  
 
    // Relación con tabla intermedia

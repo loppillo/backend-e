@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 
 export class CreateInscripcionDto {
-  @IsString()
+ @IsDateString()
   fecha:string;
 
   @IsBoolean({ message: 'El campo "inscrito" debe ser booleano' })
