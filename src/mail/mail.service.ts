@@ -5,6 +5,7 @@ import { ConfiguracionService } from 'src/configuracion/configuracion.service';
 import { CronJob } from 'cron';
 import { DateTime } from 'luxon';
 import { UsersService } from 'src/usuario/usuario.service';
+import { Usuario } from 'src/usuario/entities/usuario.entity';
 
 @Injectable()
 export class MailService {
@@ -25,17 +26,18 @@ export class MailService {
     this.configurarCron1();
     this.configurarCron2();
     this.configurarCron3();
+ 
   }
 
 
 @Cron('0 * * * * *') // Cada minuto
-  async recargarCronSiCambioFecha() {
-    this.logger.log('🔁 Verificando cambios en configuración de cron...');
-    await this.configurarCron1();
-    await this.configurarCron2();
-    await this.configurarCron3();
-    this.logger.log('✅ Cron recargado si hubo cambios'); 
-  }
+async recargarCronSiCambioFecha() {
+  this.logger.log('🔁 Verificando cambios en configuración de cron...');
+  await this.configurarCron1();
+  await this.configurarCron2();
+  await this.configurarCron3();
+  this.logger.log('✅ Crons recargados si hubo cambios'); 
+}
 
 async configurarCron1() {
   const config = await this.configService.findByClave('envio_correos_fecha_1');
@@ -53,22 +55,20 @@ async configurarCron1() {
 
   const cronExpr = `${fechaLuxon.minute} ${fechaLuxon.hour} * * ${diaSemana}`;
 
-  // Eliminar cron anterior si existe
   try {
-    this.schedulerRegistry.deleteCronJob('envioCorreoConfigurable');
-    this.logger.log('♻️ Cron anterior eliminado');
+    this.schedulerRegistry.deleteCronJob('envioCorreoConfigurable1');
+    this.logger.log('♻️ Cron anterior 1 eliminado');
   } catch {}
 
   const job = new CronJob(cronExpr, () => {
-    this.logger.log('📬 Enviando correos programados');
+    this.logger.log('📬 Enviando correos programados 1');
     this.enviarCorreos1();
   });
 
-  this.schedulerRegistry.addCronJob('envioCorreoConfigurable', job);
+  this.schedulerRegistry.addCronJob('envioCorreoConfigurable1', job);
   job.start();
 
-  this.ultimaFechaConfigurada = config.valor;
-  this.logger.log(`✅ Cron programado: ${cronExpr} (día ${diaSemana}, ${horas}:${minutos})`);
+  this.logger.log(`✅ Cron 1 programado: ${cronExpr}`);
 }
 
 async configurarCron2() {
@@ -89,20 +89,19 @@ async configurarCron2() {
 
   // Eliminar cron anterior si existe
   try {
-    this.schedulerRegistry.deleteCronJob('envioCorreoConfigurable');
-    this.logger.log('♻️ Cron anterior eliminado');
+    this.schedulerRegistry.deleteCronJob('envioCorreoConfigurable2');
+    this.logger.log('♻️ Cron anterior 2 eliminado');
   } catch {}
 
   const job = new CronJob(cronExpr, () => {
-    this.logger.log('📬 Enviando correos programados');
+    this.logger.log('📬 Enviando correos programados 2');
     this.enviarCorreos2();
   });
 
-  this.schedulerRegistry.addCronJob('envioCorreoConfigurable', job);
+  this.schedulerRegistry.addCronJob('envioCorreoConfigurable2', job);
   job.start();
 
-  this.ultimaFechaConfigurada = config.valor;
-  this.logger.log(`✅ Cron programado: ${cronExpr} (día ${diaSemana}, ${horas}:${minutos})`);
+  this.logger.log(`✅ Cron 2 programado: ${cronExpr}`);
 }
 
 async configurarCron3() {
@@ -121,22 +120,20 @@ async configurarCron3() {
 
   const cronExpr = `${fechaLuxon.minute} ${fechaLuxon.hour} * * ${diaSemana}`;
 
-  // Eliminar cron anterior si existe
   try {
-    this.schedulerRegistry.deleteCronJob('envioCorreoConfigurable');
-    this.logger.log('♻️ Cron anterior eliminado');
+    this.schedulerRegistry.deleteCronJob('envioCorreoConfigurable3');
+    this.logger.log('♻️ Cron anterior 3 eliminado');
   } catch {}
 
   const job = new CronJob(cronExpr, () => {
-    this.logger.log('📬 Enviando correos programados');
+    this.logger.log('📬 Enviando correos programados 3');
     this.enviarCorreos3();
   });
 
-  this.schedulerRegistry.addCronJob('envioCorreoConfigurable', job);
+  this.schedulerRegistry.addCronJob('envioCorreoConfigurable3', job);
   job.start();
 
-  this.ultimaFechaConfigurada = config.valor;
-  this.logger.log(`✅ Cron programado: ${cronExpr} (día ${diaSemana}, ${horas}:${minutos})`);
+  this.logger.log(`✅ Cron 3 programado: ${cronExpr}`);
 }
 
 
@@ -175,13 +172,17 @@ async enviarCorreos1() {
 
 async enviarCorreos2() {
   this.logger.log('📬 Buscando alumnos **no inscritos** para enviar correos...');
-
-  const alumnos = await this.usuarioService.findAlumnosNoInscritos();
-
-  if (!alumnos.length) {
-    this.logger.warn('⚠️ No hay alumnos no inscritos con correo.');
-    return;
+  let alumnos: Usuario[] = [];
+  try {
+    alumnos = await this.usuarioService.findAlumnosNoInscritos();
+    this.logger.log(`📬 Encontrados ${alumnos.length} alumnos no inscritos`);
+  } catch (error) {
+    this.logger.error('Error en findAlumnosNoInscritos:', error);
+    return;  // salir para no continuar con envío
   }
+
+
+
 
   for (const alumno of alumnos) {
     const to = alumno.email;
@@ -212,10 +213,7 @@ async enviarCorreos3() {
 
   const alumnos = await this.usuarioService.findAlumnosNoInscritos();
 
-  if (!alumnos.length) {
-    this.logger.warn('⚠️ No hay alumnos no inscritos con correo.');
-    return;
-  }
+ 
 
   for (const alumno of alumnos) {
     const to = alumno.email;

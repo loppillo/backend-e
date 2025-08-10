@@ -138,13 +138,23 @@ async findAlumnosConCorreo(): Promise<Usuario[]> {
 async findAlumnosNoInscritos(): Promise<Usuario[]> {
   return this.userRepository
     .createQueryBuilder('usuario')
-    .leftJoin('usuario.tipoUsuario', 'tipoUsuario')
-    .leftJoin('usuario.inscripciones', 'inscripcion')
-    .where('tipoUsuario.nombre = :tipo', { tipo: 'alumno' })
-    .andWhere('(inscripcion.id IS NULL OR inscripcion.inscrito = false)')
+    .leftJoinAndSelect('usuario.tipoUsuario', 'tipoUsuario')
+    .leftJoinAndSelect('usuario.inscripciones', 'inscripcion')
+    .where('tipoUsuario.tipo = :tipo', { tipo: 'alumno' })
     .andWhere('usuario.email IS NOT NULL')
+    // Alumnos que NO tengan inscripciones activas
+    .andWhere(qb => {
+      const subQuery = qb.subQuery()
+        .select('1')
+        .from('inscripcion', 'inscripcion_sub')
+        .where('inscripcion_sub.usuarioId = usuario.id')
+        .andWhere('inscripcion_sub.inscrito = true')
+        .getQuery();
+      return `NOT EXISTS ${subQuery}`;
+    })
     .getMany();
 }
+
 
 }
 
