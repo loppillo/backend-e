@@ -22,6 +22,10 @@ export class MailService {
         user: 'ramos.epullay@olemdo.cl',
         pass: 'Fran709EpuRamos@',
       },
+       pool: true,
+  maxConnections: 1,   // solo 1 conexión SMTP abierta a la vez
+  maxMessages: 20,     // máximo 20 mensajes por conexión
+  rateLimit: 1         // máximo 1 correo por segundo
     });
     this.configurarCron1();
     this.configurarCron2();
