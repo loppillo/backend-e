@@ -6,6 +6,7 @@ import { CronJob } from 'cron';
 import { DateTime } from 'luxon';
 import { UsersService } from 'src/usuario/usuario.service';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
+import { EmailQueue } from './email.queue';
 
 @Injectable()
 export class MailService {
@@ -13,20 +14,9 @@ export class MailService {
   private ultimaFechaConfigurada: string | null = null;
   private readonly logger = new Logger(MailService.name);
   constructor( private readonly configService: ConfiguracionService,
+        private readonly emailQueue: EmailQueue,
     private readonly schedulerRegistry: SchedulerRegistry, private readonly usuarioService: UsersService) {
-    this.transporter = nodemailer.createTransport({
-      host: 'c2631687.ferozo.com',
-       port: 587,
-      secure: false,
-      auth: {
-        user: 'ramos.epullay@olemdo.cl',
-        pass: 'Fran709EpuRamos@',
-      },
-       pool: true,
-  maxConnections: 1,   // solo 1 conexión SMTP abierta a la vez
-  maxMessages: 20,     // máximo 20 mensajes por conexión
-  rateLimit: 1         // máximo 1 correo por segundo
-    });
+   
     this.configurarCron1();
     this.configurarCron2();
     this.configurarCron3();
@@ -166,8 +156,8 @@ async enviarCorreos1() {
     </div>`;
 
     try {
-      await this.enviarCorreo(to, subject, html);
-      this.logger.log(`✅ Correo enviado a ${to}`);
+      await this.emailQueue.addEmailJob(to, subject, html);
+      this.logger.log(`📝 Correo encolado para ${to}`);
     } catch (err) {
       this.logger.error(`❌ Error al enviar correo a ${to}: ${err.message}`);
     }
@@ -203,8 +193,8 @@ async enviarCorreos2() {
     </div>`;
 
     try {
-      await this.enviarCorreo(to, subject, html);
-      this.logger.log(`✅ Correo enviado a ${to}`);
+       await this.emailQueue.addEmailJob(to, subject, html);
+      this.logger.log(`📝 Correo encolado para ${to}`);
     } catch (err) {
       this.logger.error(`❌ Error al enviar correo a ${to}: ${err.message}`);
     }
@@ -234,8 +224,8 @@ async enviarCorreos3() {
     </div>`;
 
     try {
-      await this.enviarCorreo(to, subject, html);
-      this.logger.log(`✅ Correo enviado a ${to}`);
+        await this.emailQueue.addEmailJob(to, subject, html);
+      this.logger.log(`📝 Correo encolado para ${to}`);
     } catch (err) {
       this.logger.error(`❌ Error al enviar correo a ${to}: ${err.message}`);
     }
