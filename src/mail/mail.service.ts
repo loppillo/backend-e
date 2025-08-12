@@ -16,8 +16,8 @@ export class MailService {
     private readonly schedulerRegistry: SchedulerRegistry, private readonly usuarioService: UsersService) {
     this.transporter = nodemailer.createTransport({
       host: 'c2631687.ferozo.com',
-      port: 465,
-      secure: true,
+       port: 587,
+      secure: false,
       auth: {
         user: 'ramos.epullay@olemdo.cl',
         pass: 'Fran709EpuRamos@',
