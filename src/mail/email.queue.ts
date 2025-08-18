@@ -16,8 +16,8 @@ export class EmailQueue implements OnModuleInit, OnModuleDestroy {
     maxConnections: 1,
     maxMessages: 20,
     rateLimit: 1,
-    port: 465,
-    secure: true,
+     port: 587,
+    secure: false,
      host: 'c2631687.ferozo.com',
       auth: {
         user: 'ramos.epullay@olemdo.cl',
