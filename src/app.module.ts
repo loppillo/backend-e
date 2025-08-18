@@ -40,10 +40,9 @@ import { ScheduleModule } from '@nestjs/schedule';
         port: 3306,
         username: 'fenfurna_lopo',     // Cambiar según tu configuración
         password: 'b&jTYe?&t^S!', // Cambiar según tu configuración
-        database: 'fenfurna_epu', // Cambiar según tu configuración
+        database: 'fenfurna_super', // Cambiar según tu configuración
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-
-    synchronize: true,
+       synchronize: true,
       }),
       inject: [ConfigService],
     }),

@@ -173,5 +173,15 @@ async getConfiguracionDefecto(): Promise<Record<string, string>> {
     if (!config) throw new Error(`Configuración no encontrada: ${clave}`);
     return config.valor;
   }
+
+   async get(key: string): Promise<string> {
+    const config = await this.configuracionRepository.findOne({ where: { clave: key } });
+    if (!config) throw new Error(`Config key ${key} not found`);
+    return config.valor;
+  }
+
+  async getInt(key: string): Promise<number> {
+    return parseInt(await this.get(key), 10);
+  }
 }
 

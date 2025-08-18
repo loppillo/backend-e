@@ -11,9 +11,10 @@ import { AsignaturaModule } from 'src/asignatura/asignatura.module';
 import { MailModule } from 'src/mail/mail.module';
 import { UsuarioAsignatura } from 'src/usuario-asignatura/entities/usuario-asignatura.entity';
 import { ConfiguracionModule } from 'src/configuracion/configuracion.module';
+import { Taller } from 'src/taller/entities/taller.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Inscripcion]),TypeOrmModule.forFeature([Asignatura]),TypeOrmModule.forFeature([Usuario]),TypeOrmModule.forFeature([UsuarioAsignatura]),
+  imports: [TypeOrmModule.forFeature([Inscripcion]),TypeOrmModule.forFeature([Asignatura]),TypeOrmModule.forFeature([Usuario]),TypeOrmModule.forFeature([UsuarioAsignatura]),TypeOrmModule.forFeature([Taller]),
   ConfiguracionModule,UsuarioModule,AsignaturaModule,MailModule],
   controllers: [InscripcionController],
   providers: [InscripcionService],

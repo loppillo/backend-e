@@ -13,14 +13,25 @@ export class MailService {
   private transporter;
   private ultimaFechaConfigurada: string | null = null;
   private readonly logger = new Logger(MailService.name);
+  
+
+
   constructor( private readonly configService: ConfiguracionService,
         private readonly emailQueue: EmailQueue,
     private readonly schedulerRegistry: SchedulerRegistry, private readonly usuarioService: UsersService) {
-   
+    this.transporter = nodemailer.createTransport({
+      host: 'c2631687.ferozo.com',
+      port: 465,
+      secure: true,
+      auth: {
+        user: 'ramos.epullay@olemdo.cl',
+        pass: 'Fran709EpuRamos@',
+      },
+    });
     this.configurarCron1();
     this.configurarCron2();
     this.configurarCron3();
- 
+    this.configurarCron4();
   }
 
 
@@ -30,6 +41,7 @@ async recargarCronSiCambioFecha() {
   await this.configurarCron1();
   await this.configurarCron2();
   await this.configurarCron3();
+  await this.configurarCron4();
   this.logger.log('✅ Crons recargados si hubo cambios'); 
 }
 
@@ -130,6 +142,37 @@ async configurarCron3() {
   this.logger.log(`✅ Cron 3 programado: ${cronExpr}`);
 }
 
+async configurarCron4() {
+  const config = await this.configService.findByClave('envio_correos_fecha_4');
+  if (!config) return;
+
+  const fechaLuxon = DateTime.fromISO(config.valor, { zone: 'America/Santiago' });
+  if (!fechaLuxon.isValid) {
+    this.logger.warn('⚠️ Fecha inválida en configuración.');
+    return;
+  }
+
+  const minutos = fechaLuxon.minute;
+  const horas = fechaLuxon.hour;
+  const diaSemana = fechaLuxon.weekday % 7; // luxon: 1=lunes → 0=domingo, 6=sábado
+
+  const cronExpr = `${fechaLuxon.minute} ${fechaLuxon.hour} * * ${diaSemana}`;
+
+  try {
+    this.schedulerRegistry.deleteCronJob('envioCorreoConfigurable4');
+    this.logger.log('♻️ Cron anterior 4 eliminado');
+  } catch {}
+
+  const job = new CronJob(cronExpr, () => {
+    this.logger.log('📬 Enviando correos programados 4');
+    this.enviarCorreos4();
+  });
+
+  this.schedulerRegistry.addCronJob('envioCorreoConfigurable4', job);
+  job.start();
+
+  this.logger.log(`✅ Cron 4 programado: ${cronExpr}`);
+}
 
 async enviarCorreos1() {
   this.logger.log('📬 Buscando alumnos para enviar correos...');
@@ -232,6 +275,53 @@ async enviarCorreos3() {
   }
 }
 
+async enviarCorreos4() {
+  this.logger.log('📬 Buscando alumnos no inscritos para enviar correos...');
+
+  // Obtener la lista de alumnos no inscritos por curso o taller
+  const alumnosNoInscritos = await this.usuarioService.findAlumnosNoInscritosProfe();
+
+  if (!alumnosNoInscritos.length) {
+    this.logger.warn('⚠️ No hay alumnos no inscritos para enviar.');
+    return;
+  }
+
+  // Agrupar alumnos por profesor jefe
+  const alumnosPorProfesor = new Map<Usuario, Usuario[]>();
+  
+  for (const alumno of alumnosNoInscritos) {
+    if (alumno.profesorJefe) {
+      if (!alumnosPorProfesor.has(alumno.profesorJefe)) {
+        alumnosPorProfesor.set(alumno.profesorJefe, []);
+      }
+      alumnosPorProfesor.get(alumno.profesorJefe).push(alumno);
+    }
+  }
+
+  // Enviar correos a cada profesor jefe
+  for (const [profesorJefe, alumnos] of alumnosPorProfesor.entries()) {
+    const to = profesorJefe.email;
+    const subject = 'Lista de Alumnos No Inscritos';
+    const alumnosNombres = alumnos.map(alumno => alumno.nombre).join(', ');
+    const html = `<div style="max-width: 600px; margin: 0 auto; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); color: #333;">
+      <h2 style="color: #2c3e50; margin-bottom: 20px;">👋 Estimado Profesor Jefe ${profesorJefe.nombre},</h2>
+      <p style="font-size: 16px; line-height: 1.5; margin-bottom: 20px;">
+        A continuación, se presenta la lista de alumnos no inscritos en su curso o taller: ${alumnosNombres}.
+      </p>
+      <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+      <p style="font-size: 13px; color: #999; text-align: center;">
+        Este es un mensaje automático del sistema. No respondas a este correo.
+      </p>
+    </div>`;
+
+    try {
+      await this.emailQueue.addEmailJob(to, subject, html);
+      this.logger.log(`📝 Correo encolado para ${to}`);
+    } catch (err) {
+      this.logger.error(`❌ Error al enviar correo a ${to}: ${err.message}`);
+    }
+  }
+}
 
 
 

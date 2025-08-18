@@ -97,7 +97,7 @@ export class InscripcionController {
 updates(
   @Param('id', ParseIntPipe) id: number,
   @Body() updateInscripcionDto: UpdateInscripcionDto,
-): Promise<Inscripcion> {
+) {
   return this.inscripcionService.updates(id, updateInscripcionDto);
 }
 
@@ -181,7 +181,23 @@ async verificarRestricciones(
   return { puedeInscribirse: true }; // si no lanza excepción, puede inscribirse
 }
 
+@Post('inscribir')
+async inscribir(@Body() data: { usuarioId: number; asignaturaId: number; fecha: string }) {
+  if (!data.usuarioId || !data.asignaturaId || !data.fecha) {
+    throw new BadRequestException('Faltan datos para inscribirse');
+  }
 
+  // Convertimos la fecha recibida a Date
+  const fecha = new Date(data.fecha);
+
+  await this.inscripcionService.inscribir(data.usuarioId, data.asignaturaId, fecha);
 }
 
+  @Get('cupos')
+  getCupos(@Query('usuarioId') usuarioId: number, @Query('asignaturaId') asignaturaId: number, @Query('tallerId') tallerId: number) {
+    return this.inscripcionService.getCupos(+asignaturaId, +tallerId, +usuarioId);
+  }
 
+
+
+}

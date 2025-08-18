@@ -9,7 +9,7 @@ export class TallerController {
 
   @Post()
 create(@Body() dto: CreateTallerDto) {
-  return this.tallerService.create(dto.nombre);
+  return this.tallerService.create(dto);
 }
 
 @Get()

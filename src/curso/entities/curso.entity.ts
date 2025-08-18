@@ -3,6 +3,7 @@ import { Usuario } from 'src/usuario/entities/usuario.entity';
 import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable, OneToMany } from 'typeorm';
 
 
+
 @Entity()
 export class Curso {
   @PrimaryGeneratedColumn()

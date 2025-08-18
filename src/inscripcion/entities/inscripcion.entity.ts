@@ -1,4 +1,5 @@
 import { Asignatura } from 'src/asignatura/entities/asignatura.entity';
+import { Taller } from 'src/taller/entities/taller.entity';
 import { Usuario } from 'src/usuario/entities/usuario.entity';
 import {
   Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn,
@@ -19,13 +20,18 @@ export class Inscripcion {
   @Column({ type: 'int', nullable: true })
   cantidad_limite: number;
 
-  @ManyToOne(() => Usuario, usuario => usuario.inscripciones)
-  usuario: Usuario;
+ @ManyToOne(() => Usuario, usuario => usuario.inscripciones)
+     usuario: Usuario;
 
 
   @ManyToOne(() => Asignatura, { eager: true })
   @JoinColumn({ name: 'asignaturaId' })
   asignatura: Asignatura;
+
+
+@ManyToOne(() => Taller, { nullable: true })
+@JoinColumn({ name: 'tallerId' })
+taller?: Taller;
 
 
 }

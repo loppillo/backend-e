@@ -55,6 +55,12 @@ export class Usuario {
   @ManyToOne(() => Curso, curso => curso.usuarios, { eager: true })
   curso: Curso;
 
+   // Nuevo campo: profesor jefe
+  @ManyToOne(() => Usuario, usuario => usuario.alumnos, { nullable: true })
+  profesorJefe: Usuario;
+  @OneToMany(() => Usuario, usuario => usuario.profesorJefe)
+  alumnos: Usuario[];
+
 }
 
 

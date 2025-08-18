@@ -135,14 +135,34 @@ async findAlumnosConCorreo(): Promise<Usuario[]> {
   });
 }
 
-async findAlumnosNoInscritos(): Promise<Usuario[]> {
+   async findAlumnosNoInscritos(): Promise<Usuario[]> {
+     return this.userRepository
+       .createQueryBuilder('usuario')
+       .leftJoinAndSelect('usuario.tipoUsuario', 'tipoUsuario')
+       .leftJoinAndSelect('usuario.inscripciones', 'inscripcion')
+       .where('tipoUsuario.tipo = :tipo', { tipo: 'alumno' })
+       .andWhere('usuario.email IS NOT NULL')
+       // Alumnos que NO tengan inscripciones activas
+       .andWhere(qb => {
+         const subQuery = qb.subQuery()
+           .select('1')
+           .from('inscripcion', 'inscripcion_sub')
+           .where('inscripcion_sub.usuarioId = usuario.id') // Asegúrate de que esta columna sea correcta
+           .andWhere('inscripcion_sub.inscrito = true')
+           .getQuery();
+         return `NOT EXISTS ${subQuery}`;
+       })
+       .getMany();
+   }
+
+async findAlumnosNoInscritosProfe(): Promise<Usuario[]> {
   return this.userRepository
     .createQueryBuilder('usuario')
     .leftJoinAndSelect('usuario.tipoUsuario', 'tipoUsuario')
     .leftJoinAndSelect('usuario.inscripciones', 'inscripcion')
+    .leftJoinAndSelect('usuario.profesorJefe', 'profesorJefe') // <-- Agregar esto
     .where('tipoUsuario.tipo = :tipo', { tipo: 'alumno' })
     .andWhere('usuario.email IS NOT NULL')
-    // Alumnos que NO tengan inscripciones activas
     .andWhere(qb => {
       const subQuery = qb.subQuery()
         .select('1')
@@ -154,8 +174,6 @@ async findAlumnosNoInscritos(): Promise<Usuario[]> {
     })
     .getMany();
 }
-
-
 }
 
 

@@ -12,10 +12,14 @@ export class TallerService {
     private tallerRepo: Repository<Taller>,
   ) {}
 
-  async create(nombre: string): Promise<Taller> {
-    const taller = this.tallerRepo.create({ nombre });
-    return this.tallerRepo.save(taller);
-  }
+async create(dto: CreateTallerDto) {
+  const taller = this.tallerRepo.create({
+    ...dto,
+    cuposTotales: dto.cuposTotales ?? 7,
+    cuposRestantes: dto.cuposTotales ?? 7,
+  });
+  return this.tallerRepo.save(taller);
+}
 
   async findAll(): Promise<Taller[]> {
     return this.tallerRepo.find({ relations: ['cursos'] });
